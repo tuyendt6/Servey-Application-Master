@@ -8,13 +8,12 @@ import android.database.Cursor;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -58,7 +57,7 @@ import java.util.List;
 /**
  * Created by SamSunger on 5/13/2015.
  */
-public class AddDealerAcitivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class AddDealerAcitivity extends Fragment implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     private EditText mName;
     private EditText mAdress;
@@ -105,23 +104,20 @@ public class AddDealerAcitivity extends AppCompatActivity implements GoogleApiCl
     String email = "";
     private Location mLastLocation = null;
 
+
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.add_dealer_layout);
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setTitle("Añadir Dealer");
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-
+        View RootView = inflater.inflate(R.layout.add_dealer_layout, container, false);
         setUpMapIfNeeded();
-        mName = (EditText) findViewById(R.id.txtaddname);
-        mAdress = (EditText) findViewById(R.id.txtaddAddress);
-        mEmail = (EditText) findViewById(R.id.txtaddemail);
-        mPhone = (EditText) findViewById(R.id.txtaddphone);
-        mAddDealer = (ImageButton) findViewById(R.id.imbadddeler);
-        mDistrito = (Spinner) findViewById(R.id.spinner);
-        mCorregimientos = (Spinner) findViewById(R.id.spinner2);
+        mName = (EditText) RootView.findViewById(R.id.txtaddname);
+        mAdress = (EditText) RootView.findViewById(R.id.txtaddAddress);
+        mEmail = (EditText) RootView.findViewById(R.id.txtaddemail);
+        mPhone = (EditText) RootView.findViewById(R.id.txtaddphone);
+        mAddDealer = (ImageButton) RootView.findViewById(R.id.imbadddeler);
+        mDistrito = (Spinner) RootView.findViewById(R.id.spinner);
+        mCorregimientos = (Spinner) RootView.findViewById(R.id.spinner2);
         mDistrito.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -158,23 +154,23 @@ public class AddDealerAcitivity extends AppCompatActivity implements GoogleApiCl
                 String Email = mEmail.getText().toString().trim();
                 String Phone = mPhone.getText().toString().trim();
                 if (NameDealer.equals("")) {
-                    Toast.makeText(getBaseContext(), "Name Can not null", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity().getBaseContext(), "Name Can not null", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 if (Address.equals("")) {
-                    Toast.makeText(getBaseContext(), "Address Can not null", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity().getBaseContext(), "Address Can not null", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 if (Email.equals("")) {
-                    Toast.makeText(getBaseContext(), "Email Can not null", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity().getBaseContext(), "Email Can not null", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 if (Phone.equals("")) {
-                    Toast.makeText(getBaseContext(), "Phone Can not null", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity().getBaseContext(), "Phone Can not null", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 if (mLatLng == null) {
-                    Toast.makeText(getBaseContext(), "Press on map for setting location of Dealer", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity().getBaseContext(), "Press on map for setting location of Dealer", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -195,7 +191,7 @@ public class AddDealerAcitivity extends AppCompatActivity implements GoogleApiCl
                 Log.e("AddDealer : ", dealer.toString());
                 //check dealer location :
                 boolean flag = false;
-                Cursor c = getContentResolver().query(SamsungProvider.URI_PUNTOS_DEVENTA, new String[]{tblPuntosDeVenta.POSION_LAT, tblPuntosDeVenta.POSION_LON}, null, null, null);
+                Cursor c = getActivity().getContentResolver().query(SamsungProvider.URI_PUNTOS_DEVENTA, new String[]{tblPuntosDeVenta.POSION_LAT, tblPuntosDeVenta.POSION_LON}, null, null, null);
                 while (c.moveToNext()) {
                     String lat = c.getString(c.getColumnIndexOrThrow(tblPuntosDeVenta.POSION_LAT));
                     String Lang = c.getString(c.getColumnIndexOrThrow(tblPuntosDeVenta.POSION_LON));
@@ -210,7 +206,7 @@ public class AddDealerAcitivity extends AppCompatActivity implements GoogleApiCl
 
                 if (flag == false) {
                     Util.DealerSelected = dealer;
-                    startActivity(new Intent(getBaseContext(), ListDealersActivity.class));
+                    startActivity(new Intent(getActivity().getBaseContext(), ListDealersActivity.class));
                     //add to database :
                     ContentValues values = new ContentValues();
                     values.put(tblPuntosDeVenta.ACTIVO, dealer.getStatus());// 2
@@ -227,12 +223,18 @@ public class AddDealerAcitivity extends AppCompatActivity implements GoogleApiCl
                     values.put(tblPuntosDeVenta.PROVINCIAID, mDistritos.getProvincialID());// 10
                     values.put(tblPuntosDeVenta.TELEFONO, dealer.getPhoneNumber());// 11
                     values.put(tblPuntosDeVenta.ISYS, "false");// 12
-                    getContentResolver().insert(SamsungProvider.URI_PUNTOS_DEVENTA, values);
+                    getActivity().getContentResolver().insert(SamsungProvider.URI_PUNTOS_DEVENTA, values);
                     new PostDealerData().execute(dealer);
-                    finish();
                 }
             }
         });
+
+        if (mListDistrito.size() == 0) {
+            setupPrinner();
+        }
+        if (mGoogleApiClient != null)
+            mGoogleApiClient.connect();
+        return RootView;
     }
 
     private void setUpMap() {
@@ -259,33 +261,16 @@ public class AddDealerAcitivity extends AppCompatActivity implements GoogleApiCl
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        if (mGoogleApiClient != null)
-            mGoogleApiClient.connect();
-    }
-
-    @Override
-    protected void onStop() {
+    public void onPause() {
+        super.onPause();
         if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
             mGoogleApiClient.disconnect();
-        }
-        super.onStop();
-    }
-
-    @Override
-    protected void onResume() {
-
-        super.onResume();
-        setUpMapIfNeeded();
-        if (mListDistrito.size() == 0) {
-            setupPrinner();
         }
     }
 
     private void setUpMapIfNeeded() {
         if (mGoogleApiClient == null) {
-            mGoogleApiClient = new GoogleApiClient.Builder(this)
+            mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
                     .addConnectionCallbacks(this)
                     .addOnConnectionFailedListener(this)
                     .addApi(LocationServices.API)
@@ -294,8 +279,8 @@ public class AddDealerAcitivity extends AppCompatActivity implements GoogleApiCl
         // Do a null check to confirm that we have not already instantiated the map.
         if (mMap == null) {
             // Try to obtain the map from the SupportMapFragment.
-            mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
-                    .getMap();
+            mMap = ((SupportMapFragment) getChildFragmentManager()
+                    .findFragmentById(R.id.map)).getMap();
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
                 mMap.setMyLocationEnabled(true);
@@ -321,7 +306,7 @@ public class AddDealerAcitivity extends AppCompatActivity implements GoogleApiCl
 
     private int getConreginmientosID(String distritoID) {
         int result = 0;
-        Cursor c = getContentResolver().query(SamsungProvider.URI_CONREEGIMIENTOS, null, tblDistritos._ID + " =?", new String[]{distritoID + ""}, null);
+        Cursor c = getActivity().getContentResolver().query(SamsungProvider.URI_CONREEGIMIENTOS, null, tblDistritos._ID + " =?", new String[]{distritoID + ""}, null);
 
         while (c.moveToNext()) {
             result = c.getInt(c.getColumnIndex(tblCorregimientos._ID));
@@ -365,7 +350,7 @@ public class AddDealerAcitivity extends AppCompatActivity implements GoogleApiCl
                 if (resp.trim().contains("true")) {
                     ContentValues values = new ContentValues();
                     values.put(tblPuntosDeVenta.ISYS, "");// 12
-                    getContentResolver().update(SamsungProvider.URI_PUNTOS_DEVENTA, values,
+                    getActivity().getContentResolver().update(SamsungProvider.URI_PUNTOS_DEVENTA, values,
                             tblPuntosDeVenta.NOMBRE + "=?", new String[]{
                                     dealer.getDealerName()});
                     Log.e("AddDealer", "upload susscess" + resp);
@@ -393,9 +378,9 @@ public class AddDealerAcitivity extends AppCompatActivity implements GoogleApiCl
             mListDistrito.removeAll(mListDistrito);
         }
 
-        arrayAdapter = new ArrayAdapter<Distrito>(getBaseContext(), android.R.layout.simple_spinner_item, mListDistrito);
+        arrayAdapter = new ArrayAdapter<Distrito>(getActivity().getBaseContext(), android.R.layout.simple_spinner_item, mListDistrito);
         mDistrito.setAdapter(arrayAdapter);
-        Cursor c = getContentResolver().query(SamsungProvider.URI_DISTRITOS, null, null, null, tblDistritos.NOMBRE);
+        Cursor c = getActivity().getContentResolver().query(SamsungProvider.URI_DISTRITOS, null, null, null, tblDistritos.NOMBRE);
         while (c.moveToNext()) {
             Distrito distrito = new Distrito(c.getString(c.getColumnIndexOrThrow(tblDistritos.PK_ID)), c.getString(c.getColumnIndexOrThrow(tblDistritos.PROVINCIA_ID)), c.getString(c.getColumnIndexOrThrow(tblDistritos.NOMBRE)));
             if (!mListDistrito.contains(distrito)) {
@@ -426,9 +411,9 @@ public class AddDealerAcitivity extends AppCompatActivity implements GoogleApiCl
             mListCorregimientos.removeAll(mListCorregimientos);
         }
 
-        arrayAdapterCorregimientos = new ArrayAdapter<>(getBaseContext(), android.R.layout.simple_spinner_item, mListCorregimientos);
+        arrayAdapterCorregimientos = new ArrayAdapter<>(getActivity().getBaseContext(), android.R.layout.simple_spinner_item, mListCorregimientos);
         mCorregimientos.setAdapter(arrayAdapterCorregimientos);
-        Cursor c = getContentResolver().query(SamsungProvider.URI_CONREEGIMIENTOS, null, tblCorregimientos.DISTRITOID + " =? ", new String[]{DistritoID}, tblDistritos.NOMBRE);
+        Cursor c = getActivity().getContentResolver().query(SamsungProvider.URI_CONREEGIMIENTOS, null, tblCorregimientos.DISTRITOID + " =? ", new String[]{DistritoID}, tblDistritos.NOMBRE);
         while (c.moveToNext()) {
             Corregimientos distrito = new Corregimientos(c.getString(c.getColumnIndexOrThrow(tblCorregimientos.PK_ID)), c.getString(c.getColumnIndexOrThrow(tblCorregimientos.DISTRITOID)), c.getString(c.getColumnIndexOrThrow(tblCorregimientos.NOMBRE)));
             if (!mListCorregimientos.contains(distrito)) {
@@ -444,7 +429,7 @@ public class AddDealerAcitivity extends AppCompatActivity implements GoogleApiCl
 
     private String getProvice(String ProvinceID) {
         String name = "";
-        Cursor c = getContentResolver().query(SamsungProvider.URI_PROVINCIAS, null, tblProvincias.PK_ID + "=?", new String[]{ProvinceID}, null);
+        Cursor c = getActivity().getContentResolver().query(SamsungProvider.URI_PROVINCIAS, null, tblProvincias.PK_ID + "=?", new String[]{ProvinceID}, null);
         while (c.moveToNext()) {
             name = c.getString(c.getColumnIndexOrThrow(tblProvincias.NOMBRE));
         }
@@ -455,10 +440,10 @@ public class AddDealerAcitivity extends AppCompatActivity implements GoogleApiCl
 
 
     private String getDistritFromSeler() {
-        SharedPreferences sharedPreferences = getSharedPreferences("question", Context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("question", Context.MODE_PRIVATE);
         String ID = sharedPreferences.getString("venderID", "1");
         String PDVID = "1";
-        Cursor c = getContentResolver().query(SamsungProvider.URI_VENDEDORES_POR_PUNTOS_DEVENTA, null, tblVendedoresPorPuntosDeVenta.VENDEDOR_ID + "=?", new String[]{ID}, null);
+        Cursor c = getActivity().getContentResolver().query(SamsungProvider.URI_VENDEDORES_POR_PUNTOS_DEVENTA, null, tblVendedoresPorPuntosDeVenta.VENDEDOR_ID + "=?", new String[]{ID}, null);
         while (c.moveToNext()) {
             PDVID = c.getString(c.getColumnIndex(tblVendedoresPorPuntosDeVenta.PDVID));
         }
@@ -466,7 +451,7 @@ public class AddDealerAcitivity extends AppCompatActivity implements GoogleApiCl
         Log.e("getDistritFromSeler", "PDVID = " + PDVID);
         String DistritoID = "0";
 
-        Cursor d = getContentResolver().query(SamsungProvider.URI_PUNTOS_DEVENTA, null, tblPuntosDeVenta.PK_ID + " = " + Integer.parseInt(PDVID), null, null);
+        Cursor d = getActivity().getContentResolver().query(SamsungProvider.URI_PUNTOS_DEVENTA, null, tblPuntosDeVenta.PK_ID + " = " + Integer.parseInt(PDVID), null, null);
         Log.e("getDistritFromSeler", "cusor count d = " + d.getCount());
         while (d.moveToNext()) {
             DistritoID = d.getString(d.getColumnIndex(tblPuntosDeVenta.DISTRITOID));
@@ -474,28 +459,5 @@ public class AddDealerAcitivity extends AppCompatActivity implements GoogleApiCl
         d.close();
         return DistritoID;
     }
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.manu_main, menu);
-        return true;
-    }
-
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                this.finish();
-                return true;
-            case R.id.showalldealer:
-                startActivity(new Intent(getApplicationContext(), AllDealerActivity.class));
-                break;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
 
 }

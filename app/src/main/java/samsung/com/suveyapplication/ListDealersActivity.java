@@ -5,13 +5,12 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -36,7 +35,7 @@ import java.util.Locale;
 /**
  * Created by SamSunger on 5/13/2015.
  */
-public class ListDealersActivity extends AppCompatActivity {
+public class ListDealersActivity extends Fragment {
     private ArrayList<Dealer> mListDealer = new ArrayList<Dealer>();
     private DealerAdapter dealerAdapter;
     private ListView mListView;
@@ -47,18 +46,12 @@ public class ListDealersActivity extends AppCompatActivity {
 
     private ArrayList<Dealer> mListDealerSearch = new ArrayList<Dealer>();
 
-
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.listdealer_layout);
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-
-        actionBar.setTitle("Listar Dealers");
-
-        mSearch = (ImageButton) findViewById(R.id.btnsearch);
-        mTextSearch = (EditText) findViewById(R.id.textsearch);
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View RootView = inflater.inflate(R.layout.listdealer_layout, container, false);
+        mSearch = (ImageButton) RootView.findViewById(R.id.btnsearch);
+        mTextSearch = (EditText) RootView.findViewById(R.id.textsearch);
         mSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -66,8 +59,8 @@ public class ListDealersActivity extends AppCompatActivity {
                 dealerAdapter.notifyDataSetChanged();
             }
         });
-        mListView = (ListView) findViewById(R.id.listView);
-        dealerAdapter = new DealerAdapter(getBaseContext(), R.layout.dealeritem, mListDealer);
+        mListView = (ListView) RootView.findViewById(R.id.listView);
+        dealerAdapter = new DealerAdapter(getActivity().getBaseContext(), R.layout.dealeritem, mListDealer);
         mListView.setAdapter(dealerAdapter);
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -75,37 +68,32 @@ public class ListDealersActivity extends AppCompatActivity {
                 Dealer dealer = (Dealer) dealerAdapter.getItem(position);
                 Log.e("ListDealersActivity.px", "tuyen.px " + dealer.toString());
                 Util.DealerSelected = dealer;
-                Intent i = new Intent(getBaseContext(), ProfileDearlerActivity.class);
+                Intent i = new Intent(getActivity().getBaseContext(), ProfileDearlerActivity.class);
                 i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(i);
             }
         });
-        mAddDealer = (ImageButton) findViewById(R.id.imbadddeler);
-        mBack = (ImageButton) findViewById(R.id.imbexit);
+        mAddDealer = (ImageButton) RootView.findViewById(R.id.imbadddeler);
+        mBack = (ImageButton) RootView.findViewById(R.id.imbexit);
         mAddDealer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(getBaseContext(), AddDealerAcitivity.class);
+                Intent i = new Intent(getActivity().getBaseContext(), AddDealerAcitivity.class);
                 i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(i);
-                finish();
             }
         });
         mBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish();
             }
         });
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
         if (mListDealer.size() > 0) {
             mListDealer.removeAll(mListDealer);
         }
         SetupView();
+
+        return RootView;
     }
 
     private void SetupView() {
@@ -114,7 +102,7 @@ public class ListDealersActivity extends AppCompatActivity {
                 tblPuntosDeVenta.TBL_NAME + "." + tblPuntosDeVenta.DIRECCION, tblPuntosDeVenta.TBL_NAME + "." + tblPuntosDeVenta.POSION_LAT, tblPuntosDeVenta.TBL_NAME + "." + tblPuntosDeVenta.POSION_LON,
                 tblPuntosDeVenta.TBL_NAME + "." + tblPuntosDeVenta.ACTIVO, tblZonas.TBL_NAME + "." + tblZonas.NOMBRE + " AS Zone", tblPuntosDeVenta.TBL_NAME + "." + tblPuntosDeVenta.TELEFONO
         };
-        Cursor c = getContentResolver().query(SamsungProvider.URI_JOIN_DETAIL_ORDER, projections, null, null, tblPuntosDeVenta.TBL_NAME + "." + tblPuntosDeVenta.NOMBRE);
+        Cursor c = getActivity().getContentResolver().query(SamsungProvider.URI_JOIN_DETAIL_ORDER, projections, null, null, tblPuntosDeVenta.TBL_NAME + "." + tblPuntosDeVenta.NOMBRE);
         if (c.getCount() == 0) {
             c.close();
             return;
@@ -150,7 +138,7 @@ public class ListDealersActivity extends AppCompatActivity {
     }
 
     private int getCurrentID() {
-        SharedPreferences sharedPreferences = getSharedPreferences("question", Context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("question", Context.MODE_PRIVATE);
         String id = sharedPreferences.getString("venderID", "1");
         return Integer.parseInt(id.trim());
     }
@@ -161,7 +149,7 @@ public class ListDealersActivity extends AppCompatActivity {
 
         String mListPKID = "";
         Log.e("tuyenpx ", "tuyenpx _getCurrentDay() : " + getCurrentDay());
-        Cursor c = getContentResolver().query(SamsungProvider.URI_FRECUENCIA_VISITAS, null, tblFrecuenciaVisitas.CODIGO + " =?", new String[]{getCurrentDay()}, null);
+        Cursor c = getActivity().getContentResolver().query(SamsungProvider.URI_FRECUENCIA_VISITAS, null, tblFrecuenciaVisitas.CODIGO + " =?", new String[]{getCurrentDay()}, null);
         c.moveToFirst();
         if (c.getCount() == 0) {
             c.close();
@@ -172,7 +160,7 @@ public class ListDealersActivity extends AppCompatActivity {
         Log.e("tuyenpx ", "tuyenpx _ tblFrecuenciaVisitas.PK_ID : " + mListPKID);
 
         c.close();
-        Cursor d = getContentResolver().query(SamsungProvider.URI_VENDEDORES_POR_PUNTOS_DEVENTA, null, tblVendedoresPorPuntosDeVenta.VENDEDOR_ID + " =?", new String[]{getCurrentID() + ""}, null);
+        Cursor d = getActivity().getContentResolver().query(SamsungProvider.URI_VENDEDORES_POR_PUNTOS_DEVENTA, null, tblVendedoresPorPuntosDeVenta.VENDEDOR_ID + " =?", new String[]{getCurrentID() + ""}, null);
         while (d.moveToNext()) {
             String PKID = d.getString(d.getColumnIndexOrThrow(tblVendedoresPorPuntosDeVenta.FRECUENCIA_VISITA_ID));
             String PDVID = d.getString(d.getColumnIndexOrThrow(tblVendedoresPorPuntosDeVenta.PDVID));
@@ -191,26 +179,4 @@ public class ListDealersActivity extends AppCompatActivity {
         d.close();
         return mListPDVID;
     }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.manu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                this.finish();
-                return true;
-            case R.id.showalldealer:
-                startActivity(new Intent(getApplicationContext(), AllDealerActivity.class));
-                break;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-
 }

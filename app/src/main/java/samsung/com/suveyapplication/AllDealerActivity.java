@@ -1,13 +1,14 @@
 package samsung.com.suveyapplication;
 
+import android.support.v4.app.Fragment;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
+import android.support.annotation.Nullable;
 import android.util.Log;
-import android.view.MenuItem;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
@@ -25,21 +26,19 @@ import java.util.ArrayList;
 /**
  * Created by Computer on 4/2/2016.
  */
-public class AllDealerActivity extends AppCompatActivity {
+public class AllDealerActivity extends Fragment {
 
     private ArrayList<Dealer> mListDealer = new ArrayList<Dealer>();
     private DealerAdapter dealerAdapter;
     private ListView mListView;
 
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.all_dealer_layout);
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View RooView = inflater.inflate(R.layout.all_dealer_layout, container, false);
 
-        mListView = (ListView) findViewById(R.id.list_all_dealers);
-        dealerAdapter = new DealerAdapter(getBaseContext(), R.layout.dealeritem, mListDealer);
+        mListView = (ListView) RooView.findViewById(R.id.list_all_dealers);
+        dealerAdapter = new DealerAdapter(getActivity().getBaseContext(), R.layout.dealeritem, mListDealer);
         mListView.setAdapter(dealerAdapter);
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -47,23 +46,19 @@ public class AllDealerActivity extends AppCompatActivity {
                 Dealer dealer = (Dealer) dealerAdapter.getItem(position);
                 Log.e("ListDealersActivity.px", "tuyen.px " + dealer.toString());
                 Util.DealerSelected = dealer;
-                Intent i = new Intent(getBaseContext(), ProfileDearlerActivity.class);
+                Intent i = new Intent(getActivity().getBaseContext(), ProfileDearlerActivity.class);
                 i.putExtra("alldealer", "true");
                 i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(i);
             }
         });
-
-
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
         if (mListDealer.size() > 0) {
             mListDealer.removeAll(mListDealer);
         }
         SetupView();
+
+
+        return RooView;
     }
 
     private void SetupView() {
@@ -72,12 +67,10 @@ public class AllDealerActivity extends AppCompatActivity {
                 tblPuntosDeVenta.TBL_NAME + "." + tblPuntosDeVenta.DIRECCION, tblPuntosDeVenta.TBL_NAME + "." + tblPuntosDeVenta.POSION_LAT, tblPuntosDeVenta.TBL_NAME + "." + tblPuntosDeVenta.POSION_LON,
                 tblPuntosDeVenta.TBL_NAME + "." + tblPuntosDeVenta.ACTIVO, tblZonas.TBL_NAME + "." + tblZonas.NOMBRE + " AS Zone", tblPuntosDeVenta.TBL_NAME + "." + tblPuntosDeVenta.TELEFONO
         };
-        Cursor c = getContentResolver().query(SamsungProvider.URI_JOIN_DETAIL_ORDER, projections, null, null, tblPuntosDeVenta.TBL_NAME + "." + tblPuntosDeVenta.NOMBRE);
+        Cursor c = getActivity().getContentResolver().query(SamsungProvider.URI_JOIN_DETAIL_ORDER, projections, null, null, tblPuntosDeVenta.TBL_NAME + "." + tblPuntosDeVenta.NOMBRE);
         if (c.getCount() == 0) {
             return;
         }
-
-
         while (c.moveToNext()) {
             String PK_ID = c.getString(c.getColumnIndexOrThrow(tblPuntosDeVenta.PK_ID));
             Dealer dealer = new Dealer(PK_ID, c.getString(c.getColumnIndexOrThrow("Name")),
@@ -95,17 +88,4 @@ public class AllDealerActivity extends AppCompatActivity {
         }
         c.close();
     }
-
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                this.finish();
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-
 }

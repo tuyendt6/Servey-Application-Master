@@ -5,12 +5,12 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -34,7 +34,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
-public class MapsActivity extends AppCompatActivity {
+public class MapsActivity extends Fragment {
 
     private ArrayList<Dealer> mListDealer = new ArrayList<Dealer>();
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
@@ -42,22 +42,15 @@ public class MapsActivity extends AppCompatActivity {
     private static final LatLng PTY_VIEW = new LatLng(8.982861, -79.526903);
 
 
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        setContentView(R.layout.activity_maps);
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View RootView = inflater.inflate(R.layout.activity_maps, container, false);
         SetupView();
         setUpMapIfNeeded();
+        return RootView;
     }
+
 
     /**
      * Sets up the map if it is possible to do so (i.e., the Google Play services APK is correctly
@@ -78,8 +71,8 @@ public class MapsActivity extends AppCompatActivity {
         // Do a null check to confirm that we have not already instantiated the map.
         if (mMap == null) {
             // Try to obtain the map from the SupportMapFragment.
-            mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
-                    .getMap();
+            mMap = (((SupportMapFragment) getChildFragmentManager()
+                    .findFragmentById(R.id.map)).getMap());
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
                 mMap.setMyLocationEnabled(true);
@@ -112,7 +105,7 @@ public class MapsActivity extends AppCompatActivity {
                             if (Double.parseDouble(dealer.getLatitud()) == marker.getPosition().latitude && Double.parseDouble(dealer.getLongGitude()) == marker.getPosition().longitude) {
                                 Dealer dealer1 = dealer;
                                 Util.DealerSelected = dealer1;
-                                Intent i = new Intent(getBaseContext(), ProfileDearlerActivity.class);
+                                Intent i = new Intent(getActivity().getBaseContext(), ProfileDearlerActivity.class);
                                 i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                                 startActivity(i);
                                 break;
@@ -151,7 +144,7 @@ public class MapsActivity extends AppCompatActivity {
                 tblPuntosDeVenta.TBL_NAME + "." + tblPuntosDeVenta.DIRECCION, tblPuntosDeVenta.TBL_NAME + "." + tblPuntosDeVenta.POSION_LAT, tblPuntosDeVenta.TBL_NAME + "." + tblPuntosDeVenta.POSION_LON,
                 tblPuntosDeVenta.TBL_NAME + "." + tblPuntosDeVenta.ACTIVO, tblZonas.TBL_NAME + "." + tblZonas.NOMBRE + " AS Zone", tblPuntosDeVenta.TBL_NAME + "." + tblPuntosDeVenta.TELEFONO
         };
-        Cursor c = getContentResolver().query(SamsungProvider.URI_JOIN_DETAIL_ORDER, projections, null, null, tblPuntosDeVenta.TBL_NAME + "." + tblPuntosDeVenta.NOMBRE);
+        Cursor c = getActivity().getContentResolver().query(SamsungProvider.URI_JOIN_DETAIL_ORDER, projections, null, null, tblPuntosDeVenta.TBL_NAME + "." + tblPuntosDeVenta.NOMBRE);
         if (c.getCount() == 0) {
             return;
         }
@@ -185,7 +178,7 @@ public class MapsActivity extends AppCompatActivity {
     }
 
     private int getCurrentID() {
-        SharedPreferences sharedPreferences = getSharedPreferences("question", Context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("question", Context.MODE_PRIVATE);
         String id = sharedPreferences.getString("venderID", "1");
         return Integer.parseInt(id.trim());
     }
@@ -196,7 +189,7 @@ public class MapsActivity extends AppCompatActivity {
 
         String mListPKID = "";
         Log.e("tuyenpx ", "tuyenpx _getCurrentDay() : " + getCurrentDay());
-        Cursor c = getContentResolver().query(SamsungProvider.URI_FRECUENCIA_VISITAS, null, tblFrecuenciaVisitas.CODIGO + " =?", new String[]{getCurrentDay()}, null);
+        Cursor c = getActivity().getContentResolver().query(SamsungProvider.URI_FRECUENCIA_VISITAS, null, tblFrecuenciaVisitas.CODIGO + " =?", new String[]{getCurrentDay()}, null);
         c.moveToFirst();
         mListPKID = c.getString(c.getColumnIndexOrThrow(tblFrecuenciaVisitas.PK_ID));
         if (c.getCount() == 0) {
@@ -206,7 +199,7 @@ public class MapsActivity extends AppCompatActivity {
         // }
         Log.e("tuyenpx ", "tuyenpx _ tblFrecuenciaVisitas.PK_ID : " + mListPKID);
 
-        Cursor d = getContentResolver().query(SamsungProvider.URI_VENDEDORES_POR_PUNTOS_DEVENTA, null, tblVendedoresPorPuntosDeVenta.VENDEDOR_ID + " =?", new String[]{getCurrentID() + ""}, null);
+        Cursor d = getActivity().getContentResolver().query(SamsungProvider.URI_VENDEDORES_POR_PUNTOS_DEVENTA, null, tblVendedoresPorPuntosDeVenta.VENDEDOR_ID + " =?", new String[]{getCurrentID() + ""}, null);
         while (d.moveToNext()) {
             String PKID = d.getString(d.getColumnIndexOrThrow(tblVendedoresPorPuntosDeVenta.FRECUENCIA_VISITA_ID));
             String PDVID = d.getString(d.getColumnIndexOrThrow(tblVendedoresPorPuntosDeVenta.PDVID));
@@ -225,27 +218,4 @@ public class MapsActivity extends AppCompatActivity {
         d.close();
         return mListPDVID;
     }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.manu_main, menu);
-        return true;
-    }
-
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                this.finish();
-                return true;
-            case R.id.showalldealer:
-                startActivity(new Intent(getApplicationContext(), AllDealerActivity.class));
-                break;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-
 }

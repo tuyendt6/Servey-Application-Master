@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.ProgressBar;
@@ -54,9 +55,14 @@ public class LoadingActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private TextView mView;
 
+
+    String flag = "";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
         setContentView(R.layout.loading_layout);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
@@ -67,6 +73,11 @@ public class LoadingActivity extends AppCompatActivity {
             mView = (TextView) findViewById(R.id.txtprogress);
             progressBar.setMax(100);
             mView.setText("0 %");
+            try {
+                flag = getIntent().getStringExtra("flag");
+            } catch (Exception e) {
+
+            }
             new Connect2Server().execute(getBaseContext());
         }
     }
@@ -160,9 +171,11 @@ public class LoadingActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
-            Intent i = new Intent(getBaseContext(), LoginActivity.class);
-            i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(i);
+            if (TextUtils.isEmpty(flag)) {
+                Intent i = new Intent(getBaseContext(), LoginActivity.class);
+                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(i);
+            }
             finish();
         }
 
