@@ -2,7 +2,6 @@ package samsung.com.suveyapplication;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.location.Location;
@@ -10,6 +9,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -206,7 +208,15 @@ public class AddDealerAcitivity extends Fragment implements GoogleApiClient.Conn
 
                 if (flag == false) {
                     Util.DealerSelected = dealer;
-                    startActivity(new Intent(getActivity().getBaseContext(), ListDealersActivity.class));
+                    DrawerLayout drawer = (DrawerLayout) getActivity().findViewById(R.id.drawer_layout);
+                    if (drawer != null)
+                        drawer.closeDrawer(GravityCompat.START);
+
+                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                    fragmentManager.beginTransaction()
+                            .replace(R.id.frame_container, new ListDealersActivity()).commit();
+
+
                     //add to database :
                     ContentValues values = new ContentValues();
                     values.put(tblPuntosDeVenta.ACTIVO, dealer.getStatus());// 2
@@ -214,7 +224,6 @@ public class AddDealerAcitivity extends Fragment implements GoogleApiClient.Conn
                     values.put(tblPuntosDeVenta.DIRECCION, dealer.getAdress());// 4
                     values.put(tblPuntosDeVenta.DISTRITOID, mDistritos.getDistritoID());// 5
                     values.put(tblPuntosDeVenta.CORREGIMIENTOID, mCorregimientosItem.getCorregimientosID());
-                    ;// 5
                     values.put(tblPuntosDeVenta.FACT_DEFT_ID, "");// 6
                     values.put(tblPuntosDeVenta.EMAIL1, email);// 6
                     values.put(tblPuntosDeVenta.NOMBRE, dealer.getDealerName());// 7

@@ -42,12 +42,16 @@
             android:theme="@style/AppTheme2"></activity>
         <activity
             android:name=".MainAcitivity"
+            android:launchMode="singleInstance"
             android:screenOrientation="nosensor"></activity>
         <activity
             android:name=".LockScreenActivity"
             android:screenOrientation="nosensor"
             android:theme="@style/AppTheme2"></activity>
-
+        <activity
+            android:name=".ListServeyActivity"
+            android:screenOrientation="nosensor"
+            android:theme="@style/AppTheme2"></activity>
 
         <activity
             android:name=".ProfileDearlerActivity"

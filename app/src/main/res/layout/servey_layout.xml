@@ -30,6 +30,7 @@
             android:src="@drawable/addicon"
             android:background="@color/blue_light"
             android:layout_weight="0.1"
+            android:visibility="gone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/imbaddnewservey"

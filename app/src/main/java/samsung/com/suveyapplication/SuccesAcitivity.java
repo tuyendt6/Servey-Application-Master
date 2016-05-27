@@ -4,8 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
@@ -30,6 +28,9 @@ public class SuccesAcitivity extends AppCompatActivity {
         Ok.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Intent i = new Intent(getBaseContext(), MainAcitivity.class);
+                i.putExtra("add", "list");
+                startActivity(i);
                 finish();
             }
         });
@@ -37,17 +38,12 @@ public class SuccesAcitivity extends AppCompatActivity {
         Cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(getBaseContext(), ListDealersActivity.class));
+                Intent i = new Intent(getBaseContext(), MainAcitivity.class);
+                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(i);
                 finish();
             }
         });
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.manu_main, menu);
-        return true;
     }
 
     @Override
@@ -56,9 +52,6 @@ public class SuccesAcitivity extends AppCompatActivity {
             case android.R.id.home:
                 this.finish();
                 return true;
-            case R.id.showalldealer:
-                startActivity(new Intent(getApplicationContext(), AllDealerActivity.class));
-                break;
         }
         return super.onOptionsItemSelected(item);
     }

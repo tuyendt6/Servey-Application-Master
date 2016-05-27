@@ -4,21 +4,28 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.text.Html;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.maps.android.ui.IconGenerator;
 import com.samsung.object.Dealer;
 import com.samsung.object.Util;
 import com.samsung.provider.SamsungProvider;
@@ -128,11 +135,18 @@ public class MapsActivity extends Fragment {
         for (Dealer dealer : mListDealer) {
             Log.e("tuyen.px", "dealer.getLatitud().trim()" + dealer.getLatitud().trim() + "dealer.getLongGitude().trim()" + dealer.getLongGitude().trim() + "dealer.getDealerName()" + dealer.getDealerName() + "dealer.getAdress()" + dealer.getAdress());
 
+            TextView textView = new TextView(getActivity());
+            textView.setText(Html.fromHtml("<b>" + dealer.getDealerName() + "</b> <br>" + dealer.getAdress()));
+            textView.setTextColor(Color.WHITE);
+            textView.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
+            textView.setBackgroundColor(getActivity().getResources().getColor(R.color.colorPrimary));
+            IconGenerator factory = new IconGenerator(getActivity());
+            factory.setContentView(textView);
+            Bitmap icon = factory.makeIcon();
+
             mMap.addMarker(new MarkerOptions()
                     .position(new LatLng(Double.parseDouble(dealer.getLatitud().trim()), Double.parseDouble(dealer.getLongGitude().trim())))
-                    .title(dealer.getDealerName())
-                    .snippet(dealer.getAdress())
-                    .anchor(0.5f, 1));
+                    .anchor(0.5f, 1).icon(BitmapDescriptorFactory.fromBitmap(icon)));
         }
 
         //  mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));

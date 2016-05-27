@@ -3,7 +3,6 @@ package com.samsung.adapter;
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -27,50 +26,60 @@ public class DealerAdapter extends ArrayAdapter<Dealer> {
      *
      * @param context  The current context.
      * @param resource The resource ID for a layout file containing a TextView to use when
-     *                 instantiating views.
+     * instantiating views.
      * @param objects  The objects to represent in the ListView.
      */
     private Context mContext;
-    private ArrayList<Dealer> mListDealer ;
+    private ArrayList<Dealer> mListDealer;
     private Filter filter;
 
     public DealerAdapter(Context context, int resource, ArrayList<Dealer> objects) {
         super(context, resource, objects);
-              mListDealer =objects;
-        mContext=context;
+        mListDealer = objects;
+        mContext = context;
     }
 
-    class ViewHolder{
+    class ViewHolder {
         TextView DealerName;
         TextView Address;
-        ImageView Status ;
+        TextView City;
+        TextView Dia_de;
+        ImageView Status;
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        View v=convertView;
-        ViewHolder holder=null;
+        View v = convertView;
+        ViewHolder holder = null;
 
-        if(v==null){
+        if (v == null) {
 
             LayoutInflater vi = (LayoutInflater) getContext().getSystemService(
                     Context.LAYOUT_INFLATER_SERVICE);
             v = vi.inflate(R.layout.dealeritem, parent, false);
             holder = new ViewHolder();
+
             holder.DealerName = (TextView) v.findViewById(R.id.txtDearlerName);
             holder.Address = (TextView) v.findViewById(R.id.txtAdress);
-            holder.Status=(ImageView) v.findViewById(R.id.imgstatus);
+
+            holder.City = (TextView) v.findViewById(R.id.txt_city);
+            holder.Dia_de = (TextView) v.findViewById(R.id.txt_de);
+
+            holder.Status = (ImageView) v.findViewById(R.id.imgstatus);
             v.setTag(holder);
-        }else{
+        } else {
             holder = (ViewHolder) v.getTag();
         }
-        final Dealer dealer =mListDealer.get(position);
+        final Dealer dealer = mListDealer.get(position);
         holder.DealerName.setText(dealer.getDealerName());
         holder.Address.setText(dealer.getAdress());
+        holder.City.setText(dealer.getCity() + "," + dealer.getDistric());
+        holder.Dia_de.setText("Dia de Cita");
+
         Log.e("DealerAdapter: ", dealer.toString());
-        if(dealer.getStatus().trim().equals("False")){
+        if (dealer.getStatus().trim().equals("False")) {
             holder.Status.setImageDrawable(mContext.getResources().getDrawable(R.drawable.less));
-        }else {
+        } else {
             holder.Status.setImageDrawable(mContext.getResources().getDrawable(R.drawable.many));
         }
         return v;
@@ -131,7 +140,6 @@ public class DealerAdapter extends ArrayAdapter<Dealer> {
             notifyDataSetInvalidated();
         }
     }
-
 
 
 }

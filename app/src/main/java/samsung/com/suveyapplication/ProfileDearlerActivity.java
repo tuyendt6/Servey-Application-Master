@@ -9,8 +9,6 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -141,7 +139,7 @@ public class ProfileDearlerActivity extends AppCompatActivity implements View.On
                 .position(new LatLng(Double.parseDouble(dealer.getLatitud().trim()), Double.parseDouble(dealer.getLongGitude().trim())))
                 .title(dealer.getDealerName())
                 .snippet(dealer.getAdress())
-                .anchor(0.5f, 1));
+                .anchor(0.5f, 1)).showInfoWindow();
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(Double.parseDouble(dealer.getLatitud().trim()), Double.parseDouble(dealer.getLongGitude().trim())), 6);
 
 // Zoom in, animating the camera.
@@ -179,7 +177,8 @@ public class ProfileDearlerActivity extends AppCompatActivity implements View.On
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.imbadddeler:
-                Intent i = new Intent(getBaseContext(), AddDealerAcitivity.class);
+                Intent i = new Intent(getBaseContext(), MainAcitivity.class);
+                i.putExtra("add", "add");
                 i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(i);
                 break;
@@ -198,25 +197,13 @@ public class ProfileDearlerActivity extends AppCompatActivity implements View.On
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.manu_main, menu);
-        return true;
-    }
-
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
                 this.finish();
                 return true;
-            case R.id.showalldealer:
-                startActivity(new Intent(getApplicationContext(), AllDealerActivity.class));
-                break;
         }
         return super.onOptionsItemSelected(item);
     }
-
 
 }

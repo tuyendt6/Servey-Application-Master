@@ -30,6 +30,7 @@
             android:background="@color/blue_light"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:visibility="gone"
             android:id="@+id/imbaddnewservey"
             android:layout_below="@+id/imbexit"
             android:layout_alignParentRight="true"
@@ -70,6 +71,7 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:text="Description"
+                android:visibility="gone"
                 android:id="@+id/textView5" />
 
             <TextView
@@ -77,6 +79,7 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:text="Small Text"
+                android:visibility="gone"
                 android:textColor="@color/blue_light"
                 android:id="@+id/tvdescription" />
         </LinearLayout>
